@@ -1,0 +1,88 @@
+*.class
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+#IDE and output folders and files
+/.idea
+/target/
+/build/
+*.iml
+pom.xml
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# General files that shouldn't be included
+*.log
+*.pdf
+.DS_Store
+*.bak
+*.lock
+*.swp
+
+# TeX temp/output files
+*.glg
+*.glo
+*.gls
+*.ist
+*.ilg
+*.aux
+*.blg
+*.bbl
+*.synctex
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.toc
+*.lof
+*.acr
+*.acn
+*.alg
+*.nav
+
+# Ignore Gradle stuff
+gradle-app.setting
+/.gradle/
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+
+# Eclipse stuff
+.project
+
+# Other Folders
+/logs
+/data
