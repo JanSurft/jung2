@@ -16,7 +16,6 @@ hs_err_pid*
 /target/
 /build/
 *.iml
-pom.xml
 
 # Compiled Object files
 *.slo
