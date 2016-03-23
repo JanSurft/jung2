@@ -33,7 +33,7 @@ import edu.uci.ics.jung.graph.Graph;
  * @author Danyel Fisher
  * @author Joshua O'Madadhain
  */
-public class SpringLayout<V, E> extends AbstractLayout<V,E> implements IterativeContext {
+public class SpringLayout<V, E> extends AbstractLayout<V, E> implements IterativeContext {
 
     protected double stretch = 0.70;
     protected LengthFunction<E> lengthFunction;
@@ -90,7 +90,7 @@ public class SpringLayout<V, E> extends AbstractLayout<V,E> implements Iterative
 	 */
 	@Override
 	public void setSize(BoundingSphere bs) {
-		Transformer<V,Point3f> rlt = new RandomLocationTransformer<V>(bs);
+		Transformer<V,Point3d> rlt = new RandomLocationTransformer<V>(bs);
 		setInitializer(rlt);
 		super.setSize(bs);
 	}
@@ -216,12 +216,18 @@ public class SpringLayout<V, E> extends AbstractLayout<V,E> implements Iterative
     			V v1 = getAVertex(e);
     			V v2 = getGraph().getOpposite(v1, e);
 
-    			Point3f p1 = transform(v1);
-    			Point3f p2 = transform(v2);
+    			Point3d p1 = transform(v1);
+    			Point3d p2 = transform(v2);
+
+                final double[] coordsP1 = new double[3];
+                final double[] coordsP2 = new double[3];
+                p1.get(coordsP1);
+                p2.get(coordsP2);
+
     			if(p1 == null || p2 == null) continue;
-    			double vx = p1.getX() - p2.getX();
-    			double vy = p1.getY() - p2.getY();
-    			double vz = p1.getZ() - p2.getZ();
+    			double vx = coordsP1[0] - coordsP2[0];
+    			double vy = coordsP1[0] - coordsP2[0];
+    			double vz = coordsP1[0] - coordsP2[0];
     			double len = Math.sqrt(vx * vx + vy * vy + vz * vz);
 
     			SpringEdgeData<E> sed = getSpringData(e);
@@ -271,12 +277,18 @@ public class SpringLayout<V, E> extends AbstractLayout<V,E> implements Iterative
 
             for (V v2 : getGraph().getVertices()) {
                 if (v == v2) continue;
-                Point3f p = transform(v);
-                Point3f p2 = transform(v2);
+                Point3d p = transform(v);
+                Point3d p2 = transform(v2);
+
+                final double[] coordsP1 = new double[3];
+                final double[] coordsP2 = new double[3];
+                p.get(coordsP1);
+                p2.get(coordsP2);
+
                 if(p == null || p2 == null) continue;
-                double vx = p.getX() - p2.getX();
-                double vy = p.getY() - p2.getY();
-                double vz = p.getZ() - p2.getZ();
+                double vx = coordsP1[0] - coordsP2[0];
+                double vy = coordsP1[0] - coordsP2[0];
+                double vz = coordsP1[0] - coordsP2[0];
                 double distance = vx * vx + vy * vy + vz * vz;
                 if (distance == 0) {
                     dx += Math.random();
@@ -310,37 +322,40 @@ public class SpringLayout<V, E> extends AbstractLayout<V,E> implements Iterative
                     if (isLocked(v)) continue;
                     SpringVertexData vd = getSpringData(v);
                     if(vd == null) continue;
-                    Point3f xyd = transform(v);
+                    Point3d xyd = transform(v);
                     
                     vd.dx += vd.repulsiondx + vd.edgedx;
                     vd.dy += vd.repulsiondy + vd.edgedy;
                     vd.dz += vd.repulsiondz + vd.edgedz;
+
+                    final double[] coordsxyd = new double[3];
+                    xyd.get(coordsxyd);
                     
                     // keeps nodes from moving any faster than 5 per time unit
                     xyd.set(
-                    		(float)(xyd.getX()+Math.max(-5, Math.min(5, vd.dx))),
-                    		(float)(xyd.getY()+Math.max(-5, Math.min(5, vd.dy))),
-                    		(float)(xyd.getZ()+Math.max(-5, Math.min(5, vd.dz))));
+                    		(float)(coordsxyd[0] + Math.max(-5, Math.min(5, vd.dx))),
+                    		(float)(coordsxyd[1] + Math.max(-5, Math.min(5, vd.dy))),
+                    		(float)(coordsxyd[2] + Math.max(-5, Math.min(5, vd.dz))));
                     
                     BoundingSphere d = getSize();
                     float radius = (float) d.getRadius();
                     
-                    if (xyd.getX() < -radius) {
-                        xyd.set(-radius, xyd.getY(), xyd.getZ());//                     setX(0);
-                    } else if (xyd.getX() > radius) {
-                        xyd.set(radius, xyd.getY(), xyd.getZ());             //setX(width);
+                    if (coordsxyd[0] < -radius) {
+                        xyd.set(-radius, coordsxyd[1], coordsxyd[2]);//                     setX(0);
+                    } else if (coordsxyd[0] > radius) {
+                        xyd.set(radius, coordsxyd[1], coordsxyd[2]);             //setX(width);
                     }
                     
-                    if (xyd.getY() < -radius) {
-                        xyd.set(xyd.getX(),-radius, xyd.getZ());//setY(0);
-                    } else if (xyd.getY() > radius) {
-                        xyd.set(xyd.getX(), radius, xyd.getZ());      //setY(height);
+                    if (coordsxyd[1] < -radius) {
+                        xyd.set(coordsxyd[0],-radius, coordsxyd[2]);//setY(0);
+                    } else if (coordsxyd[1] > radius) {
+                        xyd.set(coordsxyd[0], radius, coordsxyd[2]);      //setY(height);
                     }
                     
-                    if (xyd.getZ() < -radius) {
-                        xyd.set(xyd.getX(), xyd.getY(), -radius);//setY(0);
-                    } else if (xyd.getZ() > radius) {
-                        xyd.set(xyd.getX(), xyd.getY(), radius);      //setY(height);
+                    if (coordsxyd[2] < -radius) {
+                        xyd.set(coordsxyd[0], coordsxyd[1], -radius);//setY(0);
+                    } else if (coordsxyd[2] > radius) {
+                        xyd.set(coordsxyd[0], coordsxyd[1], radius);      //setY(height);
                     }
                     
 //                    System.err.println(v+" xyd = "+xyd);

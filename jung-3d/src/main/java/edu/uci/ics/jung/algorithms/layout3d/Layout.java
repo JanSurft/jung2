@@ -9,17 +9,16 @@
 */
 package edu.uci.ics.jung.algorithms.layout3d;
 
-import javax.media.j3d.BoundingSphere;
-import javax.vecmath.Point3f;
-
+import edu.uci.ics.jung.graph.Graph;
 import org.apache.commons.collections15.Transformer;
 
-import edu.uci.ics.jung.graph.Graph;
+import javax.media.j3d.BoundingSphere;
+import javax.vecmath.Point3d;
 
 /**
   * @author tom nelson
  */
-public interface Layout<V, E> extends Transformer<V,Point3f> {
+public interface Layout<V, E> extends Transformer<V,Point3d> {
     
 	/**
 	 * Initializes fields in the node that may not have
@@ -32,7 +31,7 @@ public interface Layout<V, E> extends Transformer<V,Point3f> {
 	 * provides initial locations for all vertices.
 	 * @param initializer
 	 */
-	void setInitializer(Transformer<V,Point3f> initializer);
+	void setInitializer(Transformer<V,Point3d> initializer);
     
 	/**
 	 * setter for graph
@@ -85,7 +84,7 @@ public interface Layout<V, E> extends Transformer<V,Point3f> {
      * @param v
      * @param location
      */
-	void setLocation(V v, Point3f location);
+	void setLocation(V v, Point3d location);
 
 
 }

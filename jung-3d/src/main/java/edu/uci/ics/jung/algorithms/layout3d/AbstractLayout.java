@@ -10,20 +10,18 @@
  */
 package edu.uci.ics.jung.algorithms.layout3d;
 
+import edu.uci.ics.jung.graph.Graph;
+import org.apache.commons.collections15.Transformer;
+import org.apache.commons.collections15.map.LazyMap;
+
+import javax.media.j3d.BoundingSphere;
+import javax.vecmath.Point3d;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import javax.media.j3d.BoundingSphere;
-import javax.vecmath.Point3f;
-
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.map.LazyMap;
-
-import edu.uci.ics.jung.graph.Graph;
 
 /**
  * Implements some of the dirty work of writing a layout algorithm, allowing
@@ -45,12 +43,11 @@ public abstract class AbstractLayout<V, E> implements Layout<V,E> {
 	private BoundingSphere size;
 	private Graph<V, E> graph;
     
-    protected Map<V, Point3f> locations = 
-    	LazyMap.decorate(new HashMap<V, Point3f>(),
-    			new Transformer<V,Point3f>() {
-					public Point3f transform(V arg0) {
-						return new Point3f();
-					}});
+    protected Map<V, Point3d> locations = 
+    	LazyMap.decorate(new HashMap<V, Point3d>(),
+				(Transformer<V, Point3d>) arg0 -> {
+                    return new Point3d();
+                });
 
 
 	/**
@@ -58,15 +55,15 @@ public abstract class AbstractLayout<V, E> implements Layout<V,E> {
 	 * and the showing graph to the argument, and creates the <tt>dontmove</tt>
 	 * set.
 	 * 
-	 * @param g
+	 * @param graph
 	 */
 	protected AbstractLayout(Graph<V, E> graph) {
 		this.graph = graph;
 	}
 	
-	protected AbstractLayout(Graph<V,E> graph, Transformer<V,Point3f> initializer) {
+	protected AbstractLayout(Graph<V,E> graph, Transformer<V,Point3d> initializer) {
 		this.graph = graph;
-		this.locations = LazyMap.decorate(new HashMap<V,Point3f>(), initializer);
+		this.locations = LazyMap.decorate(new HashMap<V,Point3d>(), initializer);
 	}
 	
 	protected AbstractLayout(Graph<V,E> graph, BoundingSphere size) {
@@ -74,9 +71,9 @@ public abstract class AbstractLayout<V, E> implements Layout<V,E> {
 		this.size = size;
 	}
 	
-	protected AbstractLayout(Graph<V,E> graph, Transformer<V,Point3f> initializer, BoundingSphere size) {
+	protected AbstractLayout(Graph<V,E> graph, Transformer<V,Point3d> initializer, BoundingSphere size) {
 		this.graph = graph;
-		this.locations = LazyMap.decorate(new HashMap<V,Point3f>(), initializer);
+		this.locations = LazyMap.decorate(new HashMap<V,Point3d>(), initializer);
 		this.size = size;
 	}
     
@@ -151,8 +148,8 @@ public abstract class AbstractLayout<V, E> implements Layout<V,E> {
 	 */
 	public abstract void initialize();
 
-    public void setInitializer(Transformer<V,Point3f> initializer) {
-    	this.locations = LazyMap.decorate(new HashMap<V,Point3f>(locations), initializer);
+    public void setInitializer(Transformer<V,Point3d> initializer) {
+    	this.locations = LazyMap.decorate(new HashMap<V,Point3d>(locations), initializer);
     }
     
 	/**
@@ -172,11 +169,11 @@ public abstract class AbstractLayout<V, E> implements Layout<V,E> {
 	 *            A Vertex that is a part of the Graph being visualized.
 	 * @return A Coordinates object with x and y locations.
 	 */
-	private Point3f getCoordinates(V v) {
+	private Point3d getCoordinates(V v) {
         return locations.get(v);
 	}
 	
-	public Point3f transform(V v) {
+	public Point3d transform(V v) {
 		return getCoordinates(v);
 	}
 	
@@ -187,7 +184,9 @@ public abstract class AbstractLayout<V, E> implements Layout<V,E> {
 	 */
 	public double getX(V v) {
         assert getCoordinates(v) != null : "Cannot getX for an unmapped vertex "+v;
-        return getCoordinates(v).getX();
+		final double[] coords = new double[3];
+        getCoordinates(v).get(coords);
+		return coords[0];
 	}
 
 	/**
@@ -197,14 +196,16 @@ public abstract class AbstractLayout<V, E> implements Layout<V,E> {
 	 */
 	public double getY(V v) {
         assert getCoordinates(v) != null : "Cannot getY for an unmapped vertex "+v;
-        return getCoordinates(v).getY();
+		final double[] coords = new double[3];
+		getCoordinates(v).get(coords);
+		return coords[1];
 	}
 	
     /**
      * @param v a Vertex of interest
      * @return the location point of the supplied vertex
      */
-//	public Point3f getLocation(V v) {
+//	public Point3d getLocation(V v) {
 //	    return getCoordinates(v);
 //	}
 
@@ -214,8 +215,11 @@ public abstract class AbstractLayout<V, E> implements Layout<V,E> {
 	 * @param yOffset
 	 */
 	protected void offsetVertex(V v, float xOffset, float yOffset, float zOffset) {
-		Point3f c = getCoordinates(v);
-        c.set(c.getX()+xOffset, c.getY()+yOffset, c.getZ()+zOffset);
+
+		final double[] coords = new double[3];
+		getCoordinates(v).get(coords);
+		Point3d c = getCoordinates(v);
+        c.set(coords[0] + xOffset, coords[1] + yOffset, coords[2] + zOffset);
 		setLocation(v, c);
 	}
 
@@ -235,12 +239,12 @@ public abstract class AbstractLayout<V, E> implements Layout<V,E> {
 	 * adjustments to the rest of the graph.
 	 */
 	public void setLocation(V picked, float x, float y, float z) {
-		Point3f coord = getCoordinates(picked);
+		Point3d coord = getCoordinates(picked);
 		coord.set(x, y, z);
 	}
 
-	public void setLocation(V picked, Point3f p) {
-		Point3f coord = getCoordinates(picked);
+	public void setLocation(V picked, Point3d p) {
+		Point3d coord = getCoordinates(picked);
 		coord.set(p);
 	}
 

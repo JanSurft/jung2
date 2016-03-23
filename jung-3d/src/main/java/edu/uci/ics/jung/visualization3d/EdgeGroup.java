@@ -9,13 +9,13 @@ package edu.uci.ics.jung.visualization3d;
 
 /**
  */
+
 import javax.media.j3d.Node;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
-import javax.vecmath.AxisAngle4f;
-import javax.vecmath.Point3f;
+import javax.vecmath.AxisAngle4d;
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
-import javax.vecmath.Vector3f;
 
 /**
  * 
@@ -38,7 +38,7 @@ import javax.vecmath.Vector3f;
 //				 26, 26, look);
 
 		 Transform3D t = new Transform3D();
-		 t.setTranslation(new Vector3f(0.f, .5f, 0.f));
+		 t.setTranslation(new Vector3d(0., .5, 0.));
 		 TransformGroup group = new TransformGroup(t);
 		 group.addChild(shape);
 		 addChild(group);
@@ -46,37 +46,45 @@ import javax.vecmath.Vector3f;
 	 
 	 public String toString() { return edge.toString(); }
 	 
-	 public void setEndpoints(Point3f p0, Point3f p1) {
-		 
+	 public void setEndpoints(Point3d p0, Point3d p1) {
+
+		 final double[] coords0 = new double[3];
+		 final double[] coords1 = new double[3];
+		 p1.get(coords1);
+		 p0.get(coords0);
 		 // calculate length
-		 float length = p0.distance(p1);
+		 double length = p0.distance(p1);
 		 
 		 // transform to accumulate values
 		 Transform3D tx = new Transform3D();
 		 
 		 // translate so end is at p0
 		 Transform3D p0tx = new Transform3D();
-		 p0tx.setTranslation(new Vector3f(p0.getX(),p0.getY(),p0.getZ()));
+		 p0tx.setTranslation(new Vector3d(coords0[0], coords0[1], coords0[2]));
 
 		 // scale so length is dist p0,p1
 		 Transform3D scaletx = new Transform3D();
 		 scaletx.setScale(new Vector3d(1,length,1));
 
-		 Vector3f yunit = new Vector3f(0,1,0);
-		 
-		 Vector3f v = new Vector3f(p1.getX()-p0.getX(), p1.getY()-p0.getY(), p1.getZ()-p0.getZ());
-		 
-		 Vector3f cross = new Vector3f();
+		 Vector3d yunit = new Vector3d(0,1,0);
+
+
+
+		 Vector3d v = new Vector3d(coords1[0] - coords0[0], coords1[1] - coords0[1], coords1[2] - coords0[2]);
+
+		 Vector3d cross = new Vector3d();
 		 cross.cross(yunit, v);
 		 // cross is the vector to rotate about
-		 float angle = yunit.angle(v);
+		 double angle = yunit.angle(v);
 		 
 		 Transform3D rot = new Transform3D();
-		 rot.setRotation(new AxisAngle4f(cross.getX(),cross.getY(),cross.getZ(),angle));
+		 double coords[] = new double[3];
+		 cross.get(coords);
+		 rot.setRotation(new AxisAngle4d(coords[0], coords[1], coords[2], angle));
 		 tx.mul(rot);
 
 		 tx.mul(scaletx);
-		 tx.setTranslation(new Vector3f(p0.getX(),p0.getY(),p0.getZ()));
+		 tx.setTranslation(new Vector3d(coords0[0], coords0[1], coords0[2]));
 
 		 try {
 			 setTransform(tx);

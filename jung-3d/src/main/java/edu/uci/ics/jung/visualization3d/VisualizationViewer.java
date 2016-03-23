@@ -10,13 +10,27 @@ package edu.uci.ics.jung.visualization3d;
 /**
  * 
  */
-import java.awt.BorderLayout;
-import java.awt.Font;
-import java.awt.GraphicsConfiguration;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.util.HashMap;
-import java.util.Map;
+
+import com.sun.j3d.utils.geometry.Primitive;
+import com.sun.j3d.utils.picking.PickTool;
+import com.sun.j3d.utils.picking.behaviors.PickingCallback;
+import com.sun.j3d.utils.universe.SimpleUniverse;
+import edu.uci.ics.jung.algorithms.layout.util.VisRunner;
+import edu.uci.ics.jung.algorithms.layout3d.Layout;
+import edu.uci.ics.jung.algorithms.util.IterativeContext;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.util.Context;
+import edu.uci.ics.jung.graph.util.Pair;
+import edu.uci.ics.jung.visualization.picking.MultiPickedState;
+import edu.uci.ics.jung.visualization.picking.PickedState;
+import edu.uci.ics.jung.visualization3d.control.MouseRotate;
+import edu.uci.ics.jung.visualization3d.control.MouseTranslate;
+import edu.uci.ics.jung.visualization3d.control.MouseWheelZoom;
+import edu.uci.ics.jung.visualization3d.control.PickSphereBehavior;
+import edu.uci.ics.jung.visualization3d.control.PickTranslateBehavior;
+import edu.uci.ics.jung.visualization3d.layout.LayoutEventBroadcaster;
+import org.apache.commons.collections15.BidiMap;
+import org.apache.commons.collections15.bidimap.DualHashBidiMap;
 
 import javax.media.j3d.AmbientLight;
 import javax.media.j3d.Appearance;
@@ -40,30 +54,18 @@ import javax.swing.event.ChangeListener;
 import javax.vecmath.Color3f;
 import javax.vecmath.Point3d;
 import javax.vecmath.Point3f;
+import javax.vecmath.Tuple3d;
+import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.GraphicsConfiguration;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.apache.commons.collections15.BidiMap;
-import org.apache.commons.collections15.bidimap.DualHashBidiMap;
-
-import com.sun.j3d.utils.behaviors.mouse.MouseWheelZoom;
-import com.sun.j3d.utils.geometry.Primitive;
-import com.sun.j3d.utils.picking.PickTool;
-import com.sun.j3d.utils.picking.behaviors.PickingCallback;
-import com.sun.j3d.utils.universe.SimpleUniverse;
-
-import edu.uci.ics.jung.algorithms.layout.util.VisRunner;
-import edu.uci.ics.jung.algorithms.layout3d.Layout;
-import edu.uci.ics.jung.algorithms.util.IterativeContext;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Context;
-import edu.uci.ics.jung.graph.util.Pair;
-import edu.uci.ics.jung.visualization.picking.MultiPickedState;
-import edu.uci.ics.jung.visualization.picking.PickedState;
-import edu.uci.ics.jung.visualization3d.control.MouseRotate;
-import edu.uci.ics.jung.visualization3d.control.MouseTranslate;
-import edu.uci.ics.jung.visualization3d.control.PickSphereBehavior;
-import edu.uci.ics.jung.visualization3d.control.PickTranslateBehavior;
-import edu.uci.ics.jung.visualization3d.layout.LayoutEventBroadcaster;
+//import com.sun.j3d.utils.behaviors.mouse.MouseWheelZoom;
 
 /**
  * 
@@ -235,7 +237,7 @@ public class VisualizationViewer<V,E> extends JPanel {
 //				System.err.println("lvw = \n"+lvw);
 //				lvw.invert();
 //				System.err.println("invert lvw = \n"+lvw);
-				Point3f p0 = layout.transform(v);
+				Point3d p0 = layout.transform(v);
 //				Transform3D vwip = new Transform3D();
 //				canvas.getVworldToImagePlate(vwip);
 //				System.err.println("vwip=\n"+vwip);
@@ -359,8 +361,10 @@ public class VisualizationViewer<V,E> extends JPanel {
 
 			public void stateChanged(ChangeEvent e) {
 				for(V v : vertexMap.keySet()) {
-					Point3f p = VisualizationViewer.this.layout.transform(v);
-					Vector3f pv = new Vector3f(p.getX(), p.getY(), p.getZ());
+					Point3d p = VisualizationViewer.this.layout.transform(v);
+					final double coords[] = new double[3];
+					p.get(coords);
+					Vector3d pv = new Vector3d(coords[0], coords[1], coords[2]);
 					Transform3D tx = new Transform3D();
 					tx.setTranslation(pv);
 					vertexMap.get(v).setTransform(tx);

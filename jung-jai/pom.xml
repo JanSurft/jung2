@@ -12,6 +12,20 @@
   <description>
   Jung2 rendering project that uses Java Advanced Imaging (JAI) for non-affine transforms
   </description>
+  <repositories>
+    <repository>
+      <id>com.springsource.repository.bundles.release</id>
+      <name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
+      <url>http://repository.springsource.com/maven/bundles/release</url>
+    </repository>
+
+    <repository>
+      <id>com.springsource.repository.bundles.external</id>
+      <name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
+      <url>http://repository.springsource.com/maven/bundles/external</url>
+    </repository>
+  </repositories>
+
   <build>
    	<plugins>
  	  <plugin>
@@ -28,6 +42,11 @@
     </plugins>
   </build>
   <dependencies>
+    <dependency>
+      <groupId>javax.media.jai</groupId>
+      <artifactId>com.springsource.javax.media.jai.core</artifactId>
+      <version>1.1.3</version>
+    </dependency>
     <dependency>
       <groupId>net.sf.jung</groupId>
       <artifactId>jung-api</artifactId>

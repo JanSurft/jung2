@@ -11,13 +11,12 @@
  */
 package edu.uci.ics.jung.algorithms.layout3d;
 
-import java.util.Date;
-import java.util.Random;
+import org.apache.commons.collections15.Transformer;
 
 import javax.media.j3d.BoundingSphere;
-import javax.vecmath.Point3f;
-
-import org.apache.commons.collections15.Transformer;
+import javax.vecmath.Point3d;
+import java.util.Date;
+import java.util.Random;
 
 /**
  * Transforms the input type into a random location within
@@ -31,7 +30,7 @@ import org.apache.commons.collections15.Transformer;
  *
  * @param <V>
  */
-public class RandomLocationTransformer<V> implements Transformer<V,Point3f> {
+public class RandomLocationTransformer<V> implements Transformer<V,Point3d> {
 
 	BoundingSphere d;
 	Random random;
@@ -49,7 +48,7 @@ public class RandomLocationTransformer<V> implements Transformer<V,Point3f> {
     	return (random.nextFloat()*2 - 1) * (float)(d.getRadius());
     }
     
-    public Point3f transform(V v) {
-    	return new Point3f(random(), random(), random());
+    public Point3d transform(V v) {
+    	return new Point3d(random(), random(), random());
     }
 }
